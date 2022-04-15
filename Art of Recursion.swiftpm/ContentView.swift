@@ -11,13 +11,13 @@ struct ShapeStruct {
     var color: Color
     var animate: Bool
     var polygonSides: Int
+    var rotation: Int
 }
 
 struct ShapeView {
     let id = UUID()
     var ShapeValue: Int
     var View: ShapeStruct
-    var LayerNumber: Int
 }
 
 struct ContentView: View {
@@ -31,6 +31,7 @@ struct ContentView: View {
     @State var RandomParams = true
     @State var layerNumber = 0
     @State var backgroundColor = Color.white
+    @State var checkClear = false
     
     func disableGenerate() -> Bool {
         if SelectedShapeLayers.count == 0 {
@@ -50,9 +51,19 @@ struct ContentView: View {
         } else if number == 3 {
             return "Polygon"
         } else {
-            return "Razzle Dazzle"
+            return "It's Razzle Dazzle Time" // why are you seeing this
         }
     }
+    
+    enum AlertType: Identifiable {
+            case first, second, third
+            
+            var id: Int {
+                hashValue
+            }
+        }
+    
+    @State var alertType: AlertType?
     
     var body: some View {
         NavigationView {
@@ -102,42 +113,74 @@ struct ContentView: View {
                     Button("Rectangles") {
                         layerNumber = layerNumber + 1
                         if RandomParams {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10)), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10), rotation: Int.random(in: 0..<360))))
                         } else {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 10, x: 0, y: 0, width: 10, height: 10, diameter: 0, thickness: 2, color: .red, animate: true, polygonSides: 6), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 10, x: 0, y: 0, width: 10, height: 10, diameter: 0, thickness: 2, color: .red, animate: true, polygonSides: 6, rotation: 0)))
                         }
                     }
                     
                     Button("Circles") {
                         layerNumber = layerNumber + 1
                         if RandomParams {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10)), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10), rotation: Int.random(in: 0..<360))))
                         } else {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 10, x: 0, y: 0, width: 0, height: 0, diameter: 10, thickness: 2, color: .green, animate: true, polygonSides: 6), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 10, x: 0, y: 0, width: 0, height: 0, diameter: 10, thickness: 2, color: .green, animate: true, polygonSides: 6, rotation: 0)))
                         }
                     }
                     
                     Button("Triangles") {
                         layerNumber = layerNumber + 1
                         if RandomParams {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10)), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10), rotation: Int.random(in: 0..<360))))
                         } else {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: 10, x: 0, y: 0, width: 10, height: 10, diameter: 10, thickness: 2, color: .blue, animate: true, polygonSides: 6), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: 10, x: 0, y: 0, width: 10, height: 10, diameter: 10, thickness: 2, color: .blue, animate: true, polygonSides: 6, rotation: 0)))
                         }
                     }
                     
                     Button("Polygons") {
                         layerNumber = layerNumber + 1
                         if RandomParams {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 3, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10)), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 3, View: ShapeStruct(num: Int.random(in: 1..<30), x: Int.random(in: -10..<10), y: Int.random(in: -10..<10), width: Int.random(in: 1..<50), height: Int.random(in: 1..<50), diameter: Int.random(in: 1..<50), thickness: Int.random(in: 1..<10), color: Color.random, animate: true, polygonSides: Int.random(in: 1..<10), rotation: Int.random(in: 0..<360))))
                         } else {
-                            SelectedShapeLayers.append(ShapeView(ShapeValue: 3, View: ShapeStruct(num: 10, x: 0, y: 0, width: 10, height: 10, diameter: 10, thickness: 2, color: .yellow, animate: true, polygonSides: 6), LayerNumber: layerNumber))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 3, View: ShapeStruct(num: 10, x: 0, y: 0, width: 10, height: 10, diameter: 10, thickness: 2, color: .yellow, animate: true, polygonSides: 6, rotation: 0)))
                         }
                     }
                 }
                 
                 Section(header: Text("Demo Art")) {
+                    Button("Molecule") {
+                        if SelectedShapeLayers.count > 0 {
+                            alertType = .first
+                        } else {
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: 1, y: 0, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: -1, y: 0, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: 0, y: 1, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: 0, y: -1, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            backgroundColor = Color.black
+                        }
+                    }
                     
+                    Button("Flower") {
+                        if SelectedShapeLayers.count > 0 {
+                            alertType = .second
+                        } else {
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: 2, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: -2, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: 0, y: 2, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: 0, y: -2, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            backgroundColor = Color.black
+                        }
+                    }
+                    
+                    Button("Cylinder") {
+                        if SelectedShapeLayers.count > 0 {
+                            alertType = .third
+                        } else {
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: 10, x: 0, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .pink, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: 10, x: 0, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .pink, animate: true, polygonSides: 0, rotation: 180)))
+                            backgroundColor = Color.black
+                        }
+                    }
                 }
                 
                 Section(header: Text("Background")) {
@@ -165,6 +208,42 @@ struct ContentView: View {
                     }
                 }
                 .listStyle(.sidebar)
+                .alert(isPresented: $checkClear, content: {
+                    return Alert(title: Text("Existing Layers"), message: Text("Are you sure you want to clear your layers?"), primaryButton: .default(Text("Yes"), action: {
+                        SelectedShapeLayers = []
+                    }), secondaryButton: .destructive(Text("No")))
+                })
+                .alert(item: $alertType) { type in
+                    switch type {
+                    case .first:
+                        return Alert(title: Text("Existing Layers"), message: Text("Are you sure you want to clear your layers?"), primaryButton: .default(Text("Yes"), action: {
+                            SelectedShapeLayers = []
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: 1, y: 0, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: -1, y: 0, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: 0, y: 1, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 1, View: ShapeStruct(num: 20, x: 0, y: -1, width: 0, height: 0, diameter: 20, thickness: 2, color: .green, animate: true, polygonSides: 0, rotation: 0)))
+                            backgroundColor = Color.black
+                        }), secondaryButton: .destructive(Text("No")))
+                    case .second:
+                        return Alert(title: Text("Existing Layers"), message: Text("Are you sure you want to clear your layers?"), primaryButton: .default(Text("Yes"), action: {
+                            SelectedShapeLayers = []
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: 2, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: -2, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: 0, y: 2, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 0, View: ShapeStruct(num: 20, x: 0, y: -2, width: 20, height: 20, diameter: 0, thickness: 1, color: .yellow, animate: true, polygonSides: 0, rotation: 0)))
+                            backgroundColor = Color.black
+                        }), secondaryButton: .destructive(Text("No")))
+                    case .third:
+                        return Alert(title: Text("Existing Layers"), message: Text("Are you sure you want to clear your layers?"), primaryButton: .default(Text("Yes"), action: {
+                            SelectedShapeLayers = []
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: 10, x: 0, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .pink, animate: true, polygonSides: 0, rotation: 0)))
+                            SelectedShapeLayers.append(ShapeView(ShapeValue: 2, View: ShapeStruct(num: 10, x: 0, y: 0, width: 20, height: 20, diameter: 0, thickness: 1, color: .pink, animate: true, polygonSides: 0, rotation: 180)))
+                            backgroundColor = Color.black
+                        }), secondaryButton: .destructive(Text("No")))
+                    }
+                }
+        
+        
         }
     }
 }
@@ -178,12 +257,16 @@ struct ArtCanvas: View {
             ForEach(SelectedShapeLayers, id: \.id) { layer in
                 if layer.ShapeValue == 0 {
                     RecursiveRect(num: layer.View.num, x: layer.View.x, y: layer.View.y, width: layer.View.width, height: layer.View.height, thickness: layer.View.thickness, color: layer.View.color, animate: layer.View.animate)
+                        .rotationEffect(.degrees(Double(layer.View.rotation)))
                 } else if layer.ShapeValue == 1 {
                     RecursiveCircle(num: layer.View.num, x: layer.View.x, y: layer.View.y, diameter: layer.View.diameter, thickness: layer.View.thickness, color: layer.View.color, animate: layer.View.animate)
+                        .rotationEffect(.degrees(Double(layer.View.rotation)))
                 } else if layer.ShapeValue == 2 {
                     RecursiveTriangle(num: layer.View.num, x: layer.View.x, y: layer.View.y, width: layer.View.width, height: layer.View.height, thickness: layer.View.thickness, color: layer.View.color, animate: layer.View.animate)
+                        .rotationEffect(.degrees(Double(layer.View.rotation)))
                 } else if layer.ShapeValue == 3 {
                     RecursiveShape(num: layer.View.num, x: layer.View.x, y: layer.View.y, width: layer.View.width, height: layer.View.height, thickness: layer.View.thickness, color: layer.View.color, shape: AnyShape(Polygon(sides: layer.View.polygonSides)), animate: layer.View.animate)
+                        .rotationEffect(.degrees(Double(layer.View.rotation)))
                 }
             }
         }
@@ -197,17 +280,17 @@ struct GenerateArtView: View {
     var body: some View {
         GeometryReader { geo in
         ArtCanvas(SelectedShapeLayers: $SelectedShapeLayers, BackgroundColor: $BackgroundColor)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                
-                Button{
-                    
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                
+//                Button{
+//                    let image = ArtCanvas(SelectedShapeLayers: $SelectedShapeLayers, BackgroundColor: $BackgroundColor).snapshot()
 //                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
-        }
+//                } label: {
+//                    Image(systemName: "square.and.arrow.up")
+//                }
+//            }
+//        }
         }
     }
 }
@@ -240,6 +323,10 @@ struct EditingView: View {
                 Section(header: Text("Rectangle Outline Thickness")) {
 //                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
+                }
+                Section(header: Text("Rectangle Rotation")) {
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.rotation, shapeName: "Degrees", lowerBound: 0, upperBound: 360)
                 }
                 Section(header: Text("Rectangle Outline Color")) {
                     ColorPicker("Rectangle Outline Color", selection: $ShapeView.View.color)
@@ -277,6 +364,10 @@ struct EditingView: View {
                 Section(header: Text("Circle Outline Thickness")) {
 //                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
+                }
+                Section(header: Text("Circle Rotation")) {
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.rotation, shapeName: "Degrees", lowerBound: 0, upperBound: 360)
                 }
                 Section(header: Text("Circle Outline Color")) {
                     ColorPicker("Circle Outline Color", selection: $ShapeView.View.color)
@@ -319,6 +410,10 @@ struct EditingView: View {
 //                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
                 }
+                Section(header: Text("Triangle Rotation")) {
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.rotation, shapeName: "Degrees", lowerBound: 0, upperBound: 360)
+                }
                 Section(header: Text("Triangle Outline Color")) {
                     ColorPicker("Triangle Outline Color", selection: $ShapeView.View.color)
                 }
@@ -337,31 +432,28 @@ struct EditingView: View {
         } else if ShapeView.ShapeValue == 3 {
             Form {
                 Section(header: Text("Number of Polygons")) {
-//                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.num, shapeName: "Polygons", lowerBound: 1, upperBound: 30)
                 }
                 Section(header: Text("X Displacement")) {
-//                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.x, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Y Displacement")) {
-//                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.y, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Polygon Width")) {
-//                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.width, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Polygon Height")) {
-//                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.height, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
+                Group {
                 Section(header: Text("Polygon Outline Thickness")) {
-//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
                 }
+                Section(header: Text("Polygon Rotation")) {
+                    IntSlider(value: $ShapeView.View.rotation, shapeName: "Degrees", lowerBound: 0, upperBound: 360)
+                }
                 Section(header: Text("Number of Sides")) {
-//                    TextField("6", value: $ShapeView.View.polygonSides, formatter: NumberFormatter())
                     IntSlider(value: $ShapeView.View.polygonSides, shapeName: "Sides", lowerBound: 1, upperBound: 10)
                 }
                 Section(header: Text("Polygon Outline Color")) {
@@ -374,6 +466,7 @@ struct EditingView: View {
                 }
                 Button("Show Preview") {
                     showPreview.toggle()
+                }
                 }
             }.navigationTitle(Text("Edit Polygon Layer"))
                 .sheet(isPresented: $showPreview) {
