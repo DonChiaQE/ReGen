@@ -28,8 +28,9 @@ struct ContentView: View {
         AnyView(RecursiveShape(num: 0, x: 0, y: 0, width: 0, height: 0, thickness: 0, color: .white, shape: AnyShape(Polygon(sides: 0)), animate: true))
     ]
     @State var SelectedShapeLayers:[ShapeView] = []
-    @State var RandomParams = false
+    @State var RandomParams = true
     @State var layerNumber = 0
+    @State var backgroundColor = Color.white
     
     func disableGenerate() -> Bool {
         if SelectedShapeLayers.count == 0 {
@@ -39,31 +40,62 @@ struct ContentView: View {
         }
     }
     
+    func showShapeName(number: Int) -> String {
+        if number == 0 {
+            return "Rectangle"
+        } else if number == 1 {
+            return "Circle"
+        } else if number == 2 {
+            return "Triangle"
+        } else if number == 3 {
+            return "Polygon"
+        } else {
+            return "Razzle Dazzle"
+        }
+    }
+    
     var body: some View {
         NavigationView {
             List {
                 Section(header: Text("Layers")) {
-                    ForEach($SelectedShapeLayers, id: \.id) { $shape in
-                        if shape.ShapeValue == 0 {
-                            NavigationLink(destination: EditingView(ShapeView: $shape)) {
-                                Text("Rectangle Layer \(shape.LayerNumber)")
+                    ForEach(SelectedShapeLayers.indices.reversed(), id: \.self) { index in
+                        NavigationLink(destination: EditingView(ShapeView: $SelectedShapeLayers[index])) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    HStack(spacing: 0) {
+                                        Text("Type: ")
+                                        Text("\(showShapeName(number: SelectedShapeLayers[index].ShapeValue))").bold()
+                                    }
+                                    HStack(spacing: 0) {
+                                        Text("Layer: ")
+                                        Text("\(index + 1) ").bold()
+                                        if index+1 == 1 && SelectedShapeLayers.count > 1 {
+                                            Text("(Bottom Layer)").bold()
+                                        }
+                                        if index+1 == SelectedShapeLayers.count && SelectedShapeLayers.count > 1 {
+                                            Text("(Top Layer)").bold()
+                                        }
+                                    }
+                                    HStack(spacing: 0) {
+                                        Text("Outline Color: ")
+                                        Rectangle()
+                                            .frame(width: 20, height: 20)
+                                            .foregroundColor(SelectedShapeLayers[index].View.color)
+                                            .cornerRadius(4)
+                                    }
+                                }
+                                Spacer()
                             }
-                        } else if shape.ShapeValue == 1 {
-                            NavigationLink(destination: EditingView(ShapeView: $shape)) {
-                                Text("Circle Layer \(shape.LayerNumber)")
-                            }
-                        } else if shape.ShapeValue == 2 {
-                            NavigationLink(destination: EditingView(ShapeView: $shape)) {
-                                Text("Triangle Layer \(shape.LayerNumber)")
-                            }
-                        } else if shape.ShapeValue == 3 {
-                            NavigationLink(destination: EditingView(ShapeView: $shape)) {
-                                Text("Polygon Layer \(shape.LayerNumber)")
-                            }
+                            .font(.system(.body, design: .monospaced))
+                            .padding(10)
+                            .frame(maxWidth: .infinity)
+                            .background(.gray.opacity(0.2))
+                            .cornerRadius(6)
                         }
-                    }.onDelete { indexSet in
+                    }
+                    .onDelete { indexSet in
                         SelectedShapeLayers.remove(atOffsets: indexSet)
-                      }
+                    }
                 }
                 
                 Section(header: Text("Shapes")) {
@@ -103,10 +135,18 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                Section(header: Text("Demo Art")) {
+                    
+                }
+                
+                Section(header: Text("Background")) {
+                    ColorPicker("Canvas Color Selection", selection: $backgroundColor)
+                }
             }.navigationTitle(Text("Layer Creation"))
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink(destination: GenerateArtView(SelectedShapeLayers: $SelectedShapeLayers)) {
+                        NavigationLink(destination: GenerateArtView(SelectedShapeLayers: $SelectedShapeLayers, BackgroundColor: $backgroundColor)) {
                             Text("Generate")
                         }.disabled(disableGenerate())
                     }
@@ -119,6 +159,7 @@ struct ContentView: View {
                             Button("Reset") {
                                 SelectedShapeLayers = []
                                 layerNumber = 0
+                                backgroundColor = Color.white
                             }
                         }
                     }
@@ -128,11 +169,12 @@ struct ContentView: View {
     }
 }
 
-struct GenerateArtView: View {
+struct ArtCanvas: View {
     @Binding var SelectedShapeLayers: [ShapeView]
-    
-    var art: some View {
+    @Binding var BackgroundColor: Color
+    var body: some View {
         ZStack {
+            BackgroundColor.ignoresSafeArea()
             ForEach(SelectedShapeLayers, id: \.id) { layer in
                 if layer.ShapeValue == 0 {
                     RecursiveRect(num: layer.View.num, x: layer.View.x, y: layer.View.y, width: layer.View.width, height: layer.View.height, thickness: layer.View.thickness, color: layer.View.color, animate: layer.View.animate)
@@ -146,20 +188,26 @@ struct GenerateArtView: View {
             }
         }
     }
+}
+
+struct GenerateArtView: View {
+    @Binding var SelectedShapeLayers: [ShapeView]
+    @Binding var BackgroundColor: Color
     
     var body: some View {
-        art
+        GeometryReader { geo in
+        ArtCanvas(SelectedShapeLayers: $SelectedShapeLayers, BackgroundColor: $BackgroundColor)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 
                 Button{
-                    let image = art.snapshot()
-
-                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                    
+//                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
             }
+        }
         }
     }
 }
@@ -171,22 +219,27 @@ struct EditingView: View {
         if ShapeView.ShapeValue == 0 {
             Form {
                 Section(header: Text("Number of Rectangles")) {
-                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+//                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.num, shapeName: "Rectangles", lowerBound: 1, upperBound: 30)
                 }
                 Section(header: Text("X Displacement")) {
-                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.x, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Y Displacement")) {
-                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.y, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Rectangle Width")) {
-                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.width, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Rectangle Height")) {
-                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.height, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Rectangle Outline Thickness")) {
-                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
                 }
                 Section(header: Text("Rectangle Outline Color")) {
                     ColorPicker("Rectangle Outline Color", selection: $ShapeView.View.color)
@@ -206,22 +259,27 @@ struct EditingView: View {
         } else if ShapeView.ShapeValue == 1 {
             Form {
                 Section(header: Text("Number of Circles")) {
-                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+//                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.num, shapeName: "Circles", lowerBound: 1, upperBound: 30)
                 }
                 Section(header: Text("X Displacement")) {
-                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.x, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Y Displacement")) {
-                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.y, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Circle Diameter")) {
-                    TextField("10", value: $ShapeView.View.diameter, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.diameter, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.diameter, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Circle Outline Thickness")) {
-                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
                 }
                 Section(header: Text("Circle Outline Color")) {
-                    ColorPicker("Rectangle Outline Color", selection: $ShapeView.View.color)
+                    ColorPicker("Circle Outline Color", selection: $ShapeView.View.color)
                 }
                 Section(header: Text("Animate Circles")) {
                     Toggle(isOn: $ShapeView.View.animate) {
@@ -238,25 +296,31 @@ struct EditingView: View {
         } else if ShapeView.ShapeValue == 2 {
             Form {
                 Section(header: Text("Number of Triangles")) {
-                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+//                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.num, shapeName: "Triangles", lowerBound: 1, upperBound: 30)
                 }
                 Section(header: Text("X Displacement")) {
-                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.x, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Y Displacement")) {
-                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.y, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Triangle Width")) {
-                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.width, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Triangle Height")) {
-                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.height, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Triangle Outline Thickness")) {
-                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
                 }
                 Section(header: Text("Triangle Outline Color")) {
-                    ColorPicker("Rectangle Outline Color", selection: $ShapeView.View.color)
+                    ColorPicker("Triangle Outline Color", selection: $ShapeView.View.color)
                 }
                 Section(header: Text("Animate Triangles")) {
                     Toggle(isOn: $ShapeView.View.animate) {
@@ -273,28 +337,35 @@ struct EditingView: View {
         } else if ShapeView.ShapeValue == 3 {
             Form {
                 Section(header: Text("Number of Polygons")) {
-                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+//                    TextField("5", value: $ShapeView.View.num, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.num, shapeName: "Polygons", lowerBound: 1, upperBound: 30)
                 }
                 Section(header: Text("X Displacement")) {
-                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.x, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.x, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Y Displacement")) {
-                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+//                    TextField("0", value: $ShapeView.View.y, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.y, shapeName: "", lowerBound: -10, upperBound: 10)
                 }
                 Section(header: Text("Polygon Width")) {
-                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.width, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.width, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Polygon Height")) {
-                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
+//                    TextField("10", value: $ShapeView.View.height, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.height, shapeName: "", lowerBound: 1, upperBound: 50)
                 }
                 Section(header: Text("Polygon Outline Thickness")) {
-                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+//                    TextField("2", value: $ShapeView.View.thickness, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.thickness, shapeName: "", lowerBound: 1, upperBound: 10)
                 }
                 Section(header: Text("Number of Sides")) {
-                    TextField("6", value: $ShapeView.View.polygonSides, formatter: NumberFormatter())
+//                    TextField("6", value: $ShapeView.View.polygonSides, formatter: NumberFormatter())
+                    IntSlider(value: $ShapeView.View.polygonSides, shapeName: "Sides", lowerBound: 1, upperBound: 10)
                 }
                 Section(header: Text("Polygon Outline Color")) {
-                    ColorPicker("Rectangle Outline Color", selection: $ShapeView.View.color)
+                    ColorPicker("Polygon Outline Color", selection: $ShapeView.View.color)
                 }
                 Section(header: Text("Animate Polygons")) {
                     Toggle(isOn: $ShapeView.View.animate) {
