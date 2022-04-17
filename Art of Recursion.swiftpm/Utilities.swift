@@ -7,6 +7,33 @@
 
 import SwiftUI
 
+struct ClearBackgroundView: UIViewRepresentable {
+    func makeUIView(context: Context) -> some UIView {
+        let view = UIView()
+        DispatchQueue.main.async {
+            view.superview?.superview?.backgroundColor = .clear
+        }
+        return view
+    }
+    func updateUIView(_ uiView: UIViewType, context: Context) {
+    }
+}
+
+struct ClearBackgroundViewModifier: ViewModifier {
+    
+    func body(content: Content) -> some View {
+        content
+            .background(ClearBackgroundView())
+    }
+}
+
+extension View {
+    func clearModalBackground()->some View {
+        self.modifier(ClearBackgroundViewModifier())
+    }
+}
+
+
 extension Color {
     static var random: Color {
         return Color(
@@ -67,23 +94,24 @@ extension Int {
     }
 }
 
-extension View {
-    func snapshot() -> UIImage {
-        let controller = UIHostingController(rootView: self)
-        let view = controller.view
-
-        let targetSize = controller.view.intrinsicContentSize
-        view?.bounds = CGRect(origin: .zero, size: targetSize)
-        view?.backgroundColor = .clear
-
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-
-        return renderer.image { _ in
-            view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+extension UIView {
+    func asImage() -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: self.layer.frame.size, format: format).image { context in
+            self.drawHierarchy(in: self.layer.bounds, afterScreenUpdates: true)
         }
     }
 }
 
+extension View {
+    func asImage(size: CGSize) -> UIImage {
+        let controller = UIHostingController(rootView: self)
+        controller.view.bounds = CGRect(origin: .zero, size: size)
+        let image = controller.view.asImage()
+        return image
+    }
+}
 
 struct IntSlider: View {
     @Binding var value: Int
