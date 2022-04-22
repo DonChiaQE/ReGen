@@ -145,7 +145,7 @@ struct IntSlider: View {
     }
 }
 
-private let defaultTimeout: TimeInterval = 4
+private let defaultTimeout: TimeInterval = 2
 
 struct SplashView<SplashContent: View>: ViewModifier {
   private let timeout: TimeInterval

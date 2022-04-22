@@ -274,7 +274,7 @@ struct ContentView: View {
                         }
                     }
                     
-                    Button("Cubic I") {
+                    Button("Supremus V") {
                         if SelectedShapeLayers.count > 0 {
                             alertType = .seventh
                         } else {
@@ -704,16 +704,16 @@ struct GenerateArtView: View {
     var body: some View {
         GeometryReader { geo in
             ArtCanvas(SelectedShapeLayers: $SelectedShapeLayers, BackgroundColor: $BackgroundColor)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button{
-                                print(SelectedShapeLayers)
-
-                            } label: {
-                                Image(systemName: "square.and.arrow.up")
-                            }
-                        }
-                    }
+//                    .toolbar {
+//                        ToolbarItem(placement: .navigationBarTrailing) {
+//                            Button{
+//                                print(SelectedShapeLayers)
+//
+//                            } label: {
+//                                Image(systemName: "square.and.arrow.up")
+//                            }
+//                        }
+//                    }
         }.navigationBarTitle("", displayMode: .inline)
     }
 }

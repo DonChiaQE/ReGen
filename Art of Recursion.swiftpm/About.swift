@@ -51,6 +51,19 @@ struct About: View {
             }.padding(.bottom)
             
             VStack(alignment: .leading, spacing: 10) {
+                Text("Supremus")
+                    .font(.system(.title, design: .monospaced))
+                    .bold()
+                
+                Text("Supremus was an abstract art movement formed in early 20th century Russia by a group of artists who believed in making use of basic shapes and colours to create artworks. The movement rejected the depiction of objects and instead aimed to reach an extreme point beyond which art could no longer be considered art.")
+                    .font(.system(.body, design: .monospaced))
+                Text("With Re:Gen, one can easily make pieces in the style of Supremus as the playground app heavily depends on the use of geometric shapes. The use of recursion also introduces the flaw of gaps between outline and also the possibility of displacement between each shape in the X or Y axis, a flaw that can be seen as a modern generative take on the century-old movement.")
+                    .font(.system(.body, design: .monospaced))
+                Text("To create artworks in the style of the Supremus movement, simply make use of any of the geometric shapes and lay them out by dragging the shapes around the canvas, create a flow in each piece and explore each shape and the parameters that can be tweaked, there is nothing wrong with breaking the rules of an art movement.")
+                    .font(.system(.body, design: .monospaced))
+            }.padding(.bottom)
+            
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Tips and Tricks for Creating Generative Art on Re:Gen")
                     .font(.system(.title, design: .monospaced))
                     .bold()
