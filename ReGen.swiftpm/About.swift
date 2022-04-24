@@ -21,7 +21,7 @@ struct About: View {
             Text("About")
                 .font(.system(.title, design: .monospaced))
                 .bold()
-            Text("I have always been fascinated by the concept of recursion ever since I stumbled across the concept. For most computer scientists, the idea of recursion often entails making use of functions that called itself, breaking down the problem into a smaller, simpler version of itself. This is often applied by solving factorials recursively or calculating a certain number of fibonacci's sequence. However, many computer scientists overlook the idea of applying recursion for generative art. This interesting concept of recursive art follows the concept of recursion closely, a shape is generated recursively with a function, creating a sequence of neat shapes that follow a specific pattern.")
+            Text("I have always been fascinated by the concept of recursion ever since I stumbled across the concept. For most computer scientists, the idea of recursion often entails making use of functions that calls itself, breaking down the problem into a smaller, simpler version of itself. This is often applied by solving factorials recursively or calculating a certain number of fibonacci's sequence. However, many computer scientists overlook the idea of applying recursion for generative art. This interesting concept of recursive art follows the concept of recursion closely, a shape is generated recursively with a function, creating a sequence of neat shapes that follow a specific pattern.")
                 .font(.system(.body, design: .monospaced))
                 .padding(.bottom)
             
